@@ -1,65 +1,155 @@
+class Pessoa{
+    constructor(nome,cpf,idade){
+        this.nome = nome
+        this.cpf = cpf
+        this.idade = idade
+    }
+
+    falar(){
+        return `Ola, eu sou o ${this.nome}`
+    }
+}
+
 class Conta {
-    #senha = "admin"
-    dono
+    #senha
+    #dono
     #saldo
-    constructor() {
+    constructor(dono,senha) {
+        this.#dono = this.#criar_conta(dono,senha)
         this.#saldo = 0;
     }
 
-    sacar(valorSaque, senha) {
-        if(!this.validarSenha(senha))
-        {
-            console.log("Senha incorreta")
-            return
+    get dono(){
+        if(this.#dono == ''){
+            return `Conta não existe!`
         }
-        if ((this.#saldo - valorSaque) >= 0) {
-            this.#saldo -= valorSaque
-        }else
-            console.log("Saldo insuficiente")
+        return this.#dono
+    }
+
+    // set dono(dono_conta){
+    //     return this.dono = dono_conta
+    // }
+
+    // get sempre retorna algo
+    // set é para atualizar o valor
+    get saldo(){
+        if(this.#dono != null){
+            return this.#saldo <= 300 ? this.#saldo : "Valor impede demonstração"
+        }
+        
+    }
+
+
+    set saldo(valor){
+        if(this.#dono != null){
+            this.#saldo += valor
+        }
+        
+    }
+
+    #criar_conta(pessoa,senha){
+        const validarSenha = this.#validarSenha(senha)
+        if(!validarSenha){
+            return 'Senha inválida!'
+        }
+        if(!this.#validar_dados_dono){
+            return `Falha, seus dados estõa inválidos`
+        }
+        if(this.#dono == null){
+            return pessoa
+        }else{
+            if(pessoa == this.#dono){
+                return `Você já tem uma conta!`
+            }else{
+                return `Essa conta não é sua!`
+            }
+        }
+        
+    }
+
+    sacar(valorSaque, senha) {
+        if(this.#dono != null){
+            if(!this.validarSenha(senha))
+            {
+                console.log("Senha incorreta")
+                return
+            }
+            if ((this.#saldo - valorSaque) >= 0) {
+                this.#saldo -= valorSaque
+            }else
+                console.log("Saldo insuficiente")
+        }
     }
 
     extrato(senha)
     {
-        if(!this.validarSenha(senha))
-        {
-            console.log("Senha incorreta")
-            return
+        if(this.#dono != null){
+            if(!this.validarSenha(senha))
+            {
+                console.log("Senha incorreta")
+                return
+            }
+            console.log(`Seu saldo é ${this.#saldo}`)
         }
-        console.log(`Seu saldo é ${this.#saldo}`)
     }
 
     depositar(valor,senha)
     {
-        if(!this.validarSenha(senha))
-        {
-            console.log("Senha incorreta")
-            return
+        if(this.#dono != null){
+            if(!this.#validarSenha(senha))
+            {
+                console.log("Senha incorreta")
+                return
+            }
+            if(valor < 0){
+                console.log("O valor depositado não pode ser negativo")
+                return;
+            }
+            if(valor > 5000){
+                console.log("Valor muito alto. Dirija-se ao caixa. Atendimento das 10:00h às 15:00hs")
+                return;
+            }
+            this.#saldo += valor
         }
-        if(valor < 0){
-            console.log("O valor depositado não pode ser negativo")
-            return;
-        }
-        if(valor > 5000){
-            console.log("Valor muito alto. Dirija-se ao caixa. Atendimento das 10:00h às 15:00hs")
-            return;
-        }
-        this.#saldo += valor
     }
 
-    validarSenha(senha)
+    #validarSenha(senha)
     {
-        return senha === this.#senha
+        if(!senha || (this.#dono && this.#senha != senha)){
+            return false
+        }
+        return this.#senha = senha
     }
+
+    #validar_dados_dono(pessoa){
+        if(pessoa.nome == '' || pessoa.cpf == '' || pessoa.idade == ''){
+            return false
+        }else{
+            return true
+        }
+    }
+
+
 }
 
-minhaConta = new Conta()
-minhaConta.depositar(500, "admin")
-minhaConta.saldo = 200
-minhaConta.endereco = ""
-// minhaConta.saldo = "duzentos"
-minhaConta.sacar(1000, "admin")
+// minhaConta = new Conta()
+// minhaConta.depositar(500, "admin")
+// minhaConta.saldo = 200
+// minhaConta.endereco = ""
+// console.log(minhaConta.saldo)
+// // minhaConta.saldo = "duzentos"
+// minhaConta.sacar(1000, "admin")
+// minhaConta.saldo = 100
+// minhaConta.saldo -= 1000
 
-minhaConta.saldo -= 1000
+// console.log(minhaConta.saldo)
+// minhaConta.extrato("admin")
 
-console.log(minhaConta.saldo)
-minhaConta.extrato("admin")
+const Pedro = new Pessoa("Pedro",'000.000.001-91',23)
+const conta_pedro = new Conta(Pedro,12345678)
+console.log(conta_pedro.saldo)
+console.log(conta_pedro.dono)
+conta_pedro.depositar(10,12345678)
+console.log(conta_pedro.saldo)
+
+const Joao = new Pessoa("joao",'000.000.001-91',23)
