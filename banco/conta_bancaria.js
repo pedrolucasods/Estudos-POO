@@ -21,7 +21,7 @@ class BancoCentral {
             console.log(operacao_saque.msg)
             return
         } else if (operacao_saque.status) {
-            destino.depositoViaBC(valor)
+            destino.depositoViaBC(valor,emitente.dono)
         }
 
     }
@@ -29,12 +29,14 @@ class BancoCentral {
 }
 
 class Conta {
+    #movimentacoes
     #senha
     #dono
     #saldo
     constructor(dono, senha) {
         this.#dono = this.#criar_conta(dono, senha)
         this.#saldo = 0;
+        this.#movimentacoes = []
     }
 
     get dono() {
@@ -91,6 +93,11 @@ class Conta {
                     return resposta
                 }
                 if ((this.#saldo - valorSaque) >= 0) {
+                    const movimento = {
+                        tipo:"Saque",
+                        valor:valorSaque
+                    }
+                    this.#adicionar_movimentacao(movimento)
                     this.#saldo -= valorSaque
                     const resposta = { status: true, msg: 'Saque Realizado!' }
                     return resposta
@@ -130,6 +137,11 @@ class Conta {
                 console.log("Valor muito alto. Dirija-se ao caixa. Atendimento das 10:00h às 15:00hs")
                 return;
             }
+            const movimento = {
+                tipo:"Deposito",
+                valor:valor
+            }
+            this.#adicionar_movimentacao(movimento)
             this.#saldo += valor
         }
     }
@@ -149,10 +161,24 @@ class Conta {
         }
     }
 
-    depositoViaBC(saldo) {
+    depositoViaBC(saldo,emitente) {
+        const movimento = {
+            tipo: "Deposito Via BC",
+            valor: saldo,
+            emitente:emitente
+        }
         this.#saldo += saldo
     }
 
+    #adicionar_movimentacao(movimento){
+        this.#movimentacoes.push(movimento)
+    }
+
+    ver_movimentacoes(){
+        for(const movimentos of this.#movimentacoes){
+            console.log(movimentos,"\t")
+        }
+    }
 }
 
 // minhaConta = new Conta()
@@ -178,7 +204,10 @@ console.log(conta_pedro.saldo)
 const Joao = new Pessoa("joao", '000.000.001-91', 22)
 const conta_joao = new Conta(Joao, 1223)
 conta_joao.depositar(10, 1223)
+conta_joao.depositar(10, 1223)
+conta_joao.sacar(5,1223)
 console.log(conta_joao.saldo)
+console.log(conta_joao.ver_movimentacoes())
 
 BancoCentral.transferir_valor(conta_pedro, conta_joao, -10, 12345678)
 console.log(conta_pedro.saldo)
